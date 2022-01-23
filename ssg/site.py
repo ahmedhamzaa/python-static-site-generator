@@ -15,6 +15,7 @@ class Site:
         for path in self.source.rglob("*"):
             if path.is_dir():
                 self.create_dir(path)
+                
 
     
 

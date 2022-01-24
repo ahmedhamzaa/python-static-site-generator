@@ -1,5 +1,3 @@
-from importlib.abc import Loader
-from importlib.metadata import metadata
 import re
 from yaml import (load ,FullLoader)
 from collections.abc import Mapping
@@ -8,15 +6,16 @@ class Content(Mapping):
     __delimeter="^(?:-|\+){3}\s*$"
     __regex=re.compile(__delimeter,re.MULTILINE)
 
-    def __init__(self,metadata,content):
-        self.data=metadata
-        self.data.add("content",content)
-
     @classmethod
     def load(cls,string):
         _,fm,content=cls.__regex.split(string,2)
-        cls.load(fm,Loader=FullLoader)
-        return cls(_,content)
+        metadata=cls.load(fm,Loader=FullLoader)
+        return cls(metadata,content)
+
+    def __init__(self,metadata,content):
+        self.data=metadata
+        self.data["content"]=content
+
     
     @property
     def body(self):
@@ -36,7 +35,7 @@ class Content(Mapping):
         return self.data[key]
     
     def __iter__(self):
-        iter(self.data)
+        self.data.__iter__()
     
     def __len__(self):
         return len(self.data)
@@ -44,6 +43,6 @@ class Content(Mapping):
     def __repr__(self):
         data={}
         for key,value in self.data.items():
-            if key =="content":
+            if key != "content":
                 data[key]=value
         return str(data)
